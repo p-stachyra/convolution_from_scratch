@@ -3,7 +3,7 @@ import numpy as np
 
 # project imports
 from Convolution import Convolution
-from Activation import Activation
+from ActivationHidden import ActivationHidden
 from Pooling import Pooling
 from Normalization import Normalization
 
@@ -31,7 +31,7 @@ class Layer:
 		for fmap, kernel in zip(self.feature_maps, self.kernels):
 			convolved_feature_map = Convolution.convolve(fmap.reshape(fmap.shape[0], fmap.shape[1]), kernel)
 			self.convolved.append(convolved_feature_map)
-			activated = Activation(convolved_feature_map).relu()
+			activated = ActivationHidden(convolved_feature_map).relu()
 			self.activated.append(activated)
 			pooled = Pooling(activated, kernel).pooling()
 			self.pooled.append(pooled)

@@ -1,6 +1,6 @@
 import numpy as np
 
-class Activation:
+class ActivationHidden:
 
     def __init__(self, feature_map):
         self.inputs = feature_map

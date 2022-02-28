@@ -22,12 +22,13 @@ def main():
 
     layer = Layer(test_img, kernels_vertical)
     transformed = layer.transform()
+    print(transformed)
 
     fcl = FullyConnectedLayer(transformed, 3)
     fcl.forward()
 
     probabilities = ActivationOutput(fcl.output).softmax()
-    print(probabilities)
+    #print(probabilities)
 
 if __name__ == "__main__":
     main()
