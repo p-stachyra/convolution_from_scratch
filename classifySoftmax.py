@@ -1,34 +1,66 @@
 import cv2
 import numpy as np
+import sys
 
+# local imports
 from ActivationOutput import ActivationOutput
 from FullyConnectedLayer import FullyConnectedLayer
 from Layer import Layer
+from Loss import Loss
+
+# import kernel
+from kernels import kernel_vertical
+
+# helper function for preparing the kernel
+def replicateKernel(kernel, image):
+    return [kernel for i in range(image.shape[-1])]
 
 def main():
 
-    kernel_horizontal = np.array([[-1, -1, -1],
-                                  [0, 0, 0],
-                                  [1, 1, 1]])
+    # read the input from the command line
+    filename = sys.argv[1]
+    image = cv2.imread(filename)
 
-    kernel_vertical = np.array([[-1, 0, 1],
-                                [-1, 0, 1],
-                                [-1, 0, 1]])
+    # the kernel taken from a separate source file
+    kernels = replicateKernel(kernel_vertical, image)
 
-    test_img = cv2.imread("f_15.JPG")
+    # traverse thorough the initial operations on the input:
+    # - convolution
+    # - activation
+    # - pooling
+    # - normalization
+    layer = Layer(image, kernels)
 
-    kernels_horizontal = [kernel_horizontal for i in range(test_img.shape[-1])]
-    kernels_vertical = [kernel_vertical for i in range(test_img.shape[-1])]
-
-    layer = Layer(test_img, kernels_vertical)
+    # the output of all of the initial operations
     transformed = layer.transform()
-    print(transformed)
 
-    fcl = FullyConnectedLayer(transformed, 3)
-    fcl.forward()
+    # save the outputs of each operations in a visualized form
+    cv2.imwrite("preview_images/Image_convolved.PNG", np.dstack(layer.convolved))
+    cv2.imwrite("preview_images/Image_activated.PNG", np.dstack(layer.activated))
+    cv2.imwrite("preview_images/Image_pooled.PNG", np.dstack(layer.pooled))
+    cv2.imwrite("preview_images/Image_normalized.PNG", np.dstack(layer.normalized))
 
-    probabilities = ActivationOutput(fcl.output).softmax()
-    #print(probabilities)
+    io_sequence = transformed
+    for i in range(5):
+        fcl = FullyConnectedLayer(io_sequence, 5)
+        fcl.forward()
+        output_for_softmax = fcl.output
+        io_sequence = fcl.output.flatten()
+
+    # The probabilities for the classes - using Softmax
+    probabilities = ActivationOutput(output_for_softmax).softmax()
+
+    # Computing loss
+    true_output = np.array([0, 0, 1, 0, 0])
+    objective_function = Loss(probabilities, true_output).categoricalCrossEntropy()
+
+    # Output to STDOUT
+    print("Probabilities for each class:")
+    for p in list(probabilities):
+        for prob in p:
+            print(round(prob, 3))
+
+    print("Loss:", objective_function)
 
 if __name__ == "__main__":
     main()
