@@ -2,12 +2,18 @@ from numpy.lib.stride_tricks import sliding_window_view
 
 class Convolution:
 
-    def convolve(feature_map, kernel):
+    def __init__(self, feature_map, kernel):
+        self.feature_map = feature_map
+        self.kernel = kernel
+        self.shape_input = feature_map.shape
+        self.shape_kernel = kernel.shape
+
+    def convolve(self):
         # Also known as rolling or moving window, the window slides across all dimensions
         # of the array and extracts subsets of the array at all window positions.
         # safe function to operate on a multidimensional array for
         # sliding a window and performing computations on that window
-        multiplied = sliding_window_view(feature_map, kernel.shape) * kernel
+        multiplied = sliding_window_view(self.feature_map, self.shape_kernel) * self.kernel
 
         # perform summing at the internal,
         # first level of the dimension
@@ -19,8 +25,8 @@ class Convolution:
         # cells_in_kernels - the number of individual values within a kernel
 
         to_be_summed = multiplied.reshape(
-            (feature_map.shape[0] + 1 - kernel.shape[0]) * (feature_map.shape[1] + 1 - kernel.shape[1]),
-            kernel.shape[0] * kernel.shape[1])
+            (self.shape_input[0] + 1 - self.shape_kernel[0]) * (self.shape_input[1] + 1 - self.shape_kernel[1]),
+            self.shape_kernel[0] * self.shape_kernel[1])
 
         # perform summing for each array of a single cell's values
         summed = to_be_summed.sum(axis=1)
@@ -30,7 +36,8 @@ class Convolution:
         # the number of rows will be the number of rows of the input - 1 (as the multiplication always shares a row)
         # and the number of columns will be the number of columns of the input
         # - 1 (as the multiplication always shares a column)
-        output = summed.reshape((feature_map.shape[0] + 1 - kernel.shape[0]),
-                                (feature_map.shape[1] + 1 - kernel.shape[1]))
+        output = summed.reshape((self.shape_input[0] + 1 - self.shape_kernel[0]),
+                                (self.shape_input[1] + 1 - self.shape_kernel[1]))
+
 
         return output

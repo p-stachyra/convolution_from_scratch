@@ -4,8 +4,8 @@ import sys
 
 # local imports
 from ActivationOutput import ActivationOutput
-from FullyConnectedLayer import FullyConnectedLayer
-from Layer import Layer
+from Network import Network
+from Transformation import Transformation
 from Loss import Loss
 
 # import kernel
@@ -29,7 +29,7 @@ def main():
     # - activation
     # - pooling
     # - normalization
-    layer = Layer(image, kernels)
+    layer = Transformation(image, kernels)
 
     # the output of all of the initial operations
     transformed = layer.transform()
@@ -42,7 +42,7 @@ def main():
 
     io_sequence = transformed
     for i in range(5):
-        fcl = FullyConnectedLayer(io_sequence, 5)
+        fcl = Network(io_sequence, 5, [0, 0, 1, 0, 0])
         fcl.forward()
         output_for_softmax = fcl.output
         io_sequence = fcl.output.flatten()

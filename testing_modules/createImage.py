@@ -1,8 +1,8 @@
 import cv2
 from PIL import Image
 
-WIDTH = 5
-HEIGHT = 5
+WIDTH = 6
+HEIGHT = 6
 
 
 def createImage(width, height):
